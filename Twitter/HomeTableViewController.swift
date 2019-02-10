@@ -48,12 +48,13 @@ class HomeTableViewController: UITableViewController {
             for tweet in tweets {
                 self.tweetsArray.append(tweet)
             }
-            
+            //print(self.tweetsArray)
             self.tableView.reloadData()
             self.myRefreshControl.endRefreshing()
             
         }, failure: { (Error) in
             print("could not retrieve tweets")
+            self.myRefreshControl.endRefreshing()
         })
         
     }
@@ -108,25 +109,62 @@ class HomeTableViewController: UITableViewController {
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "tweetCell", for: indexPath) as! TweetCell
         
-        let user = tweetsArray[indexPath.row]["user"] as! NSDictionary
+        let entities = tweetsArray[indexPath.row]["entities"] as! NSDictionary
         
-        cell.usernameLabel.text = user["name"] as! String
-        cell.tweetContentLabel.text = tweetsArray[indexPath.row]["text"] as! String
+        //print(entities)
         
-        let imageUrl = URL(string: user["profile_image_url_https"] as! String)
-        let data = try? Data(contentsOf: imageUrl!)
-        
-        if let imageData = data {
-            cell.profileImageView.image = UIImage(data: imageData)
+        if let media = entities["media"] as? [NSDictionary] {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "tweetCellWithImage") as! TweetCellWithImage
+            
+            print("adding subview")
+            
+            let mediaUrl = URL(string: media[0]["media_url_https"] as! String)
+            
+            let mediaData = try? Data(contentsOf: mediaUrl!)
+            
+            cell.mediaImage.image = UIImage(data: mediaData!)
+            
+            let user = tweetsArray[indexPath.row]["user"] as! NSDictionary
+            
+            cell.usernameLabel.text = user["name"] as! String
+            cell.tweetContentLabel.text = tweetsArray[indexPath.row]["text"] as! String
+            
+            let imageUrl = URL(string: user["profile_image_url_https"] as! String)
+            let data = try? Data(contentsOf: imageUrl!)
+            
+            if let imageData = data {
+                cell.profileImageView.image = UIImage(data: imageData)
+            }
+            
+            cell.setFavorite(tweetsArray[indexPath.row]["favorited"] as! Bool)
+            cell.tweetId = tweetsArray[indexPath.row]["id"] as! Int
+            cell.setRetweet(tweetsArray[indexPath.row]["retweeted"] as! Bool)
+            return cell
+            
+        } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "tweetCell", for: indexPath) as! TweetCell
+            
+            let user = tweetsArray[indexPath.row]["user"] as! NSDictionary
+            
+            cell.usernameLabel.text = user["name"] as! String
+            cell.tweetContentLabel.text = tweetsArray[indexPath.row]["text"] as! String
+            
+            let imageUrl = URL(string: user["profile_image_url_https"] as! String)
+            let data = try? Data(contentsOf: imageUrl!)
+            
+            if let imageData = data {
+                cell.profileImageView.image = UIImage(data: imageData)
+            }
+            
+            cell.setFavorite(tweetsArray[indexPath.row]["favorited"] as! Bool)
+            cell.tweetId = tweetsArray[indexPath.row]["id"] as! Int
+            cell.setRetweet(tweetsArray[indexPath.row]["retweeted"] as! Bool)
+            return cell
         }
         
-        cell.setFavorite(tweetsArray[indexPath.row]["favorited"] as! Bool)
-        cell.tweetId = tweetsArray[indexPath.row]["id"] as! Int
-        cell.setRetweet(tweetsArray[indexPath.row]["retweeted"] as! Bool)
         
-        return cell
+        
     }
     
 
@@ -139,5 +177,5 @@ class HomeTableViewController: UITableViewController {
         // Pass the selected object to the new view controller.
     }
     */
-
+    
 }
