@@ -24,7 +24,7 @@ The following **bonus** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src="https://imgur.com/StWI33y" width=250><br>
+<img src="https://imgur.com/a/hIQ5Lov" width=250><br>
 
 Twitter is a basic twitter app to read your tweets.
 
